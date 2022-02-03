@@ -1,1 +1,98 @@
-index.html
+onDrag() {
+    let restrict = document.getElementById("parent-div");
+      interact(".drag-comp")
+      .draggable({
+        inertia: true,
+        autoScroll: true,
+        restrict: {
+          restriction: restrict,
+          elementRect: {
+            top: 0,
+            left: 0,
+            bottom: 1,
+            right: 1,
+          },
+        },
+      })
+      .resizable({
+        edges: {
+          left: true,
+          right: true,
+          bottom: true,
+          top: true,
+        },
+        // keep the edges inside the parent
+        restrictEdges: {
+          outer: "parent",
+          endOnly: true,
+        },
+        // minimum size
+        restrictSize: {
+          min: {
+            width: 84,
+            height: 46,
+          },
+        },
+        inertia: true,
+      })
+      .on("dragstart", function (event) {
+        event.preventDefault();
+      })
+      .on(
+        "dragmove",
+        function (event) {
+          let parent_width = document.getElementById("parent-div").offsetWidth;
+          var target = event.target;
+          console.log(target);
+          var x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
+          var y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+          // this is to set dragable componet area
+          if (parent_width === 460) {
+            if (x < 0 || x > 380 || y < 0 || y > 575) {
+              return;
+            }
+          }
+          if (parent_width === 550) {
+            if (x < 0 || x > 470 || y < 0 || y > 305) {
+              return;
+            }
+          }
+          console.log(x, y);
+          this.setState({ cordx: x, cordy: y });
+          // translate the element
+          target.style.webkitTransform = target.style.transform =
+            "translate(" + x + "px, " + y + "px)";
+
+          // update the posiion attributes
+          target.setAttribute("data-x", x);
+          target.setAttribute("data-y", y);
+        }.bind(this)
+      )
+      .on(
+        "resizemove",
+        function (event) {
+          var target = event.target;
+          var x = parseFloat(target.getAttribute("data-x")) || 0;
+          var y = parseFloat(target.getAttribute("data-y")) || 0;
+
+          // update the element's style
+          target.style.width = event.rect.width + "px";
+          target.style.height = event.rect.height + "px";
+          this.setState({
+            overlay_width: parseInt(event.rect.width, 10),
+            overlay_height: parseInt(event.rect.height, 10),
+          });
+
+          // translate when resizing from top or left edges
+          x += event.deltaRect.left;
+          y += event.deltaRect.top;
+          // this.setState({width: x, height: y})
+          target.style.webkitTransform = target.style.transform =
+            "translate(" + x + "px," + y + "px)";
+          target.setAttribute("data-x", x);
+          target.setAttribute("data-y", y);
+          //target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height);
+        }.bind(this)
+      );
+    
+  }
